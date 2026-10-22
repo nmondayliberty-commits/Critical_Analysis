@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mystery of Flight 19 – English Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f2f57; --ocean:#1583a6; --foam:#f1fafd; --line:#cfe3ee;
+  --sun:#ffbf3c; --sun-d:#c98a0c; --coral:#ff6f61; --coral-d:#c94c40;
+  --mint:#35c28b; --mint-d:#1d8c63; --ink:#1b3552; --muted:#58708c;
+  --disp:'Fredoka','Trebuchet MS','Segoe UI',system-ui,sans-serif;
+  --body:'Nunito','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:var(--body); font-size:17px; line-height:1.6; color:var(--ink);
+  min-height:100vh; overflow-x:hidden;
+  background:linear-gradient(180deg,#a6e0f8 0%,#62b8e0 36%,#2574ab 72%,#0f3d6b 100%) fixed;
+}
+button,textarea{font-family:inherit}
+:focus-visible{outline:4px solid var(--navy); outline-offset:3px}
+
+/* ---------- sky decoration ---------- */
+.sky{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden}
+.cloud{position:absolute; left:-260px; width:170px; height:52px; border-radius:60px; background:rgba(255,255,255,.62);
+  animation:drift linear infinite}
+.cloud::before,.cloud::after{content:""; position:absolute; background:inherit; border-radius:50%}
+.cloud::before{width:70px; height:70px; left:24px; top:-34px}
+.cloud::after{width:52px; height:52px; right:30px; top:-24px}
+.c1{top:12%; animation-duration:90s; animation-delay:-30s}
+.c2{top:38%; transform:scale(1.3); animation-duration:120s; animation-delay:-80s; opacity:.7}
+.c3{top:66%; transform:scale(.8); animation-duration:105s; animation-delay:-10s; opacity:.5}
+@keyframes drift{to{left:110vw}}
+.flyby{position:absolute; top:22%; left:-90px; font-size:2.4rem; animation:fly 38s linear infinite 4s; filter:drop-shadow(0 6px 4px rgba(15,47,87,.25))}
+@keyframes fly{0%{left:-90px; transform:translateY(0)} 50%{transform:translateY(-40px)} 100%{left:110vw; transform:translateY(20px)}}
+@media (prefers-reduced-motion:reduce){.cloud,.flyby{animation:none; left:10%} .plane{transition:none!important}}
+
+.wrap{position:relative; z-index:1}
+
+/* ---------- header ---------- */
+.top{max-width:1080px; margin:0 auto; padding:18px 16px 6px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between}
+.brand{display:flex; align-items:center; gap:12px}
+.brand h1{margin:0; font:700 clamp(1.5rem,3.6vw,2.3rem)/1.1 var(--disp); color:var(--navy)}
+.brand p{margin:2px 0 0; font-weight:700; color:#1d4a74}
+.tools{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.timer{background:#fff; border-radius:14px; padding:8px 14px; font:600 1.1rem var(--disp); color:var(--navy); box-shadow:0 4px 0 rgba(15,47,87,.18)}
+
+/* ---------- buttons ---------- */
+.btn{--sh:#0a1f3a; font:600 1.05rem var(--disp); border:0; border-radius:16px; padding:11px 20px; cursor:pointer;
+  background:#fff; color:var(--navy); box-shadow:0 5px 0 rgba(15,47,87,.3); transition:transform .1s, box-shadow .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(4px); box-shadow:0 1px 0 rgba(15,47,87,.3)}
+.btn[disabled]{opacity:.45; cursor:not-allowed; transform:none}
+.btn.go{background:var(--mint); color:#fff; box-shadow:0 5px 0 var(--mint-d)}
+.btn.go:active{box-shadow:0 1px 0 var(--mint-d)}
+.btn.next{background:var(--sun); color:var(--navy); box-shadow:0 5px 0 var(--sun-d)}
+.btn.next:active{box-shadow:0 1px 0 var(--sun-d)}
+.btn.warn{background:var(--coral); color:#fff; box-shadow:0 5px 0 var(--coral-d)}
+.btn.warn:active{box-shadow:0 1px 0 var(--coral-d)}
+.btn.small{font-size:.9rem; padding:7px 14px; border-radius:12px; box-shadow:0 3px 0 rgba(15,47,87,.28)}
+
+/* ---------- stepper with the plane ---------- */
+.stepper{--d:50px; position:relative; display:flex; max-width:1080px; margin:4px auto 16px; padding:40px 16px 0}
+.stepper .line{position:absolute; left:calc(16px + (100% - 32px)/8); right:calc(16px + (100% - 32px)/8); top:calc(40px + var(--d)/2 - 2px); border-top:4px dotted rgba(15,47,87,.5)}
+.stop{flex:1; background:none; border:0; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--navy); font:600 .98rem/1.2 var(--disp); text-align:center; padding:0 4px}
+.stop .dot{width:var(--d); height:var(--d); border-radius:50%; background:#fff; border:4px solid var(--navy); display:grid; place-items:center; font:700 1.2rem var(--disp); box-shadow:0 4px 0 rgba(15,47,87,.25); transition:background .25s}
+.stop.cur .dot{background:var(--sun)}
+.stop.done .dot{background:var(--mint); color:#fff}
+.plane{position:absolute; top:0; font-size:2rem; line-height:1; transform:translateX(-50%); transition:left .7s cubic-bezier(.5,0,.2,1); pointer-events:none; filter:drop-shadow(0 4px 3px rgba(15,47,87,.25))}
+
+/* ---------- layout ---------- */
+.layout{display:grid; grid-template-columns:262px 1fr; gap:20px; max-width:1080px; margin:0 auto; padding:0 16px 60px; align-items:start}
+.panel{background:rgba(255,255,255,.94); border-radius:26px; box-shadow:0 12px 30px rgba(15,47,87,.2)}
+.side{padding:18px; position:sticky; top:12px}
+.side h2{margin:0 0 10px; font:600 1.2rem var(--disp); color:var(--navy)}
+.grp{margin-bottom:12px}
+.grp small{display:block; font-weight:800; color:var(--muted); margin-bottom:5px}
+.chips{display:flex; flex-wrap:wrap; gap:7px}
+.chip{width:40px; height:40px; border-radius:50%; border:3px solid var(--line); background:#fff; color:var(--navy); font:600 1rem var(--disp); cursor:pointer}
+.chip.done{background:var(--mint); border-color:var(--mint-d); color:#fff}
+.chip.cur{box-shadow:0 0 0 4px var(--sun)}
+.prog{margin-top:14px}
+.bar{height:14px; background:var(--line); border-radius:10px; overflow:hidden}
+.bar i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--ocean),var(--mint)); border-radius:10px; transition:width .4s}
+#progText{display:block; margin-top:6px; font-weight:800; color:var(--muted); font-size:.95rem}
+.side .btn{width:100%; margin-top:12px}
+
+/* ---------- step content ---------- */
+.stage{padding:26px 28px 24px}
+.step-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.tag{background:var(--navy); color:#fff; border-radius:12px; padding:3px 14px; font:600 1rem var(--disp)}
+.step-head h2{margin:0; font:700 1.8rem/1.15 var(--disp); color:var(--navy)}
+.instr{font-weight:700; color:#2c4d70; max-width:70ch}
+.passage{background:#fffbe8; border-left:8px solid var(--sun); border-radius:6px 20px 20px 6px; padding:14px 22px 16px; margin:14px 0 22px; box-shadow:0 4px 0 rgba(201,138,12,.16)}
+.passage h3{margin:0 0 4px; font:600 1.05rem var(--disp); color:var(--sun-d)}
+.passage p{margin:0; font-size:1.06rem; line-height:1.85; max-width:72ch}
+.casebox{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; background:#e9f7fb; border:3px dashed var(--ocean); border-radius:20px; padding:12px 18px; margin:14px 0 22px}
+.casebox span{font-weight:800; max-width:46ch}
+
+.q{margin:0 0 22px}
+.q label{display:flex; align-items:center; gap:10px; font:600 1.12rem var(--disp); color:var(--navy); margin-bottom:8px}
+.qn{flex:none; width:34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:grid; place-items:center; font:600 1rem var(--disp)}
+textarea{
+  display:block; width:100%; min-height:112px; resize:vertical; border:3px solid var(--line); border-radius:18px;
+  padding:6px 18px; font:700 1.06rem/34px var(--body); color:var(--ink); background-color:#fff;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 33px,#bcd7e4 33px,#bcd7e4 34px);
+  background-origin:content-box; background-attachment:local;
+}
+textarea:focus{outline:none; border-color:var(--ocean); box-shadow:0 0 0 5px rgba(21,131,166,.2)}
+textarea::placeholder{color:#97adc2; font-weight:600}
+.wc{display:block; text-align:right; font-size:.85rem; font-weight:800; color:var(--muted); margin-top:3px}
+
+.footnav{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; border-top:3px dotted var(--line); padding-top:18px; margin-top:8px}
+
+/* ---------- dialogs ---------- */
+dialog{border:0; border-radius:26px; padding:0; width:min(760px,94vw); max-height:88vh; box-shadow:0 24px 60px rgba(0,0,0,.4); color:var(--ink)}
+dialog::backdrop{background:rgba(15,47,87,.6)}
+.dlg{padding:24px 26px}
+.dlg h2{margin:0 0 10px; font:700 1.6rem var(--disp); color:var(--navy)}
+.dlg h3{margin:16px 0 2px; font:600 1.02rem var(--disp); color:var(--sun-d)}
+.dlg p{margin:0 0 6px; line-height:1.8}
+.dlg .acts{display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap; margin-top:18px}
+
+/* ---------- results ---------- */
+#results{max-width:1080px; margin:0 auto; padding:20px 16px 70px}
+.hero{display:grid; grid-template-columns:200px 1fr; gap:24px; align-items:center; padding:26px 28px}
+.ring{width:190px; height:190px}
+.ring .rb{fill:none; stroke:var(--line); stroke-width:12}
+.ring .rf{fill:none; stroke:var(--mint); stroke-width:12; stroke-linecap:round; stroke-dasharray:326.7; stroke-dashoffset:326.7; transition:stroke-dashoffset 1.1s ease, stroke .3s}
+.ring text{fill:var(--navy); font-family:var(--disp)}
+.hero h2{margin:0; font:700 clamp(1.5rem,3.4vw,2.2rem)/1.15 var(--disp); color:var(--navy)}
+.stars{font-size:2rem; color:var(--sun); letter-spacing:4px; margin:4px 0}
+.hero p{margin:0; font-weight:700; font-size:1.1rem}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:18px 0}
+.stat{background:#fff; border-radius:20px; padding:14px 16px; box-shadow:0 8px 20px rgba(15,47,87,.16); border-bottom:6px solid var(--ocean)}
+.stat:nth-child(2){border-color:var(--sun)} .stat:nth-child(3){border-color:var(--mint)} .stat:nth-child(4){border-color:var(--coral)}
+.stat b{display:block; font:700 1.7rem var(--disp); color:var(--navy)}
+.stat span{font-weight:800; color:var(--muted); font-size:.95rem}
+.box{padding:22px 26px; margin-bottom:18px}
+.box h3{margin:0 0 12px; font:700 1.4rem var(--disp); color:var(--navy)}
+.row{display:grid; grid-template-columns:170px 1fr 56px; gap:12px; align-items:center; margin:9px 0; font-weight:800}
+.row .bar{height:18px}
+.row .bar i{width:0}
+.sec-h{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 10px}
+.sec-h h3{margin:0}
+.sc{background:var(--navy); color:#fff; border-radius:12px; padding:2px 14px; font:600 1.05rem var(--disp)}
+details{background:#f3fbff; border-radius:16px; padding:8px 16px; margin:0 0 14px}
+summary{cursor:pointer; font:600 1rem var(--disp); color:var(--ocean)}
+details ul{margin:8px 0 6px; padding-left:22px}
+details li{margin:4px 0}
+.rv{list-style:none; margin:0 0 12px; padding:14px 16px; border-radius:18px; background:#fff; border:3px solid var(--line)}
+.rv.ok{border-color:var(--mint); background:#f1fcf7}
+.rv.no{border-color:#ffc2bb; background:#fff6f5}
+.rv-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font:600 1.05rem var(--disp); color:var(--navy)}
+.badge{margin-left:auto; border-radius:12px; padding:2px 12px; font:600 .95rem var(--disp); color:#fff; background:var(--coral)}
+.rv.ok .badge{background:var(--mint-d)}
+.rv.blank .badge{background:#8aa0b5}
+.your{margin:8px 0 6px; padding:8px 14px; background:rgba(15,47,87,.05); border-radius:12px; white-space:pre-wrap; font-weight:700; min-height:2.2em}
+.your.empty{color:var(--muted); font-style:italic; font-weight:600}
+.why{margin:4px 0 8px; font-size:.95rem; font-weight:700; color:var(--muted)}
+.res-actions{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:10px}
+ol.rvs{padding:0; margin:0}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  .stage{padding:20px 16px}
+  .hero{grid-template-columns:1fr; text-align:center; justify-items:center}
+  .row{grid-template-columns:110px 1fr 48px}
+}
+@media (max-width:560px){
+  .stepper{--d:40px}
+  .stop{font-size:.78rem}
+  .tools{width:100%}
+  .tools .btn{flex:1}
+  body{font-size:16px}
+}
+@media print{
+  .sky,.top .tools,.res-actions{display:none!important}
+  body{background:#fff}
+  .panel{box-shadow:none; border:1px solid #ccc}
+  #app{display:none!important}
+  #results{display:block!important}
+  details{display:block} details[open] summary{display:none}
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <span class="flyby">✈️</span>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><path d="M32 8 58 54H6Z" fill="#ffbf3c33" stroke="#0f2f57" stroke-width="4" stroke-dasharray="1 7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="38" r="5" fill="#ff6f61"/></svg>
+      <div>
+        <h1>The Mystery of Flight 19</h1>
+        <p>English, Grade 6: Listing facts and building an argument</p>
+      </div>
+    </div>
+    <div class="tools" id="tools">
+      <div class="timer" title="Time spent"><span aria-hidden="true">⏱</span> <span id="clock">00:00</span></div>
+      <button class="btn" id="readBtn" type="button">📖 Read the story</button>
+      <button class="btn go" id="submitTop" type="button">Submit test</button>
+    </div>
+  </header>
+
+  <!-- ================= TEST ================= -->
+  <div id="app">
+    <nav class="stepper" id="stepper" aria-label="Test sections"></nav>
+    <div class="layout">
+      <aside class="panel side" aria-label="Question map">
+        <h2>Question map</h2>
+        <div id="qmap"></div>
+        <div class="prog">
+          <div class="bar"><i id="bar"></i></div>
+          <span id="progText">0 of 15 answered</span>
+        </div>
+        <button class="btn" id="readBtn2" type="button">📖 Read the story</button>
+      </aside>
+
+      <main class="panel stage" id="stage"></main>
+    </div>
+  </div>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="results" hidden aria-live="polite"></section>
+</div>
+
+<!-- story dialog -->
+<dialog id="storyDlg" aria-labelledby="storyTitle">
+  <div class="dlg">
+    <h2 id="storyTitle">The Mystery of Flight 19</h2>
+    <div id="storyBody"></div>
+    <div class="acts"><button class="btn next" id="storyClose" type="button">Close and keep writing</button></div>
+  </div>
+</dialog>
+
+<!-- confirm dialog -->
+<dialog id="confDlg" aria-labelledby="confTitle">
+  <div class="dlg">
+    <h2 id="confTitle">Ready to submit?</h2>
+    <p id="confMsg"></p>
+    <div class="acts">
+      <button class="btn" id="confNo" type="button">Keep working</button>
+      <button class="btn go" id="confYes" type="button">Yes, submit</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   DATA – passage, questions and accepted facts
+   ============================================================ */
+var SECTIONS = [
+  {
+    id:"p1", part:"A", title:"Paragraph One", stop:"Paragraph One", n:3,
+    text:"On December 5, 1945, five Avenger torpedo bombers carrying 14 men left the Naval Air Station at Fort Lauderdale, Florida on a routine training flight. None of the men returned home and none of the 5 planes were found. Of the 14 men on this fateful flight, 13 were trainees. Their mission was to practise bombing at a location 60 miles east. Once the practice mission was completed, they were to continue in an easterly direction for approximately another 70 miles, turn north for 70 miles, and then turn southwest and head for home. In effect, they were unwittingly travelling a route that resembled the formation of the Bermuda Triangle.",
+    facts:[
+      {label:"On 5 December 1945, five Avenger torpedo bombers left the Naval Air Station at Fort Lauderdale, Florida.", re:/1945|december|\bdec\b|avenger|torpedo|fort lauderdale|naval air|florida|\b(five|5)\b.*(plane|bomber|aircraft)/},
+      {label:"There were 14 men on the flight, and 13 of them were trainees.", re:/\b14\b|fourteen|\b13\b|thirteen|trainee/},
+      {label:"None of the men returned home and none of the five planes were found.", re:/(none|no one|nobody|never|not)\b.*(return|home|found|came back)|disappear|vanish|missing|\blost\b/},
+      {label:"It was a routine training flight to practise bombing 60 miles east.", re:/routine|training|practi[cs]e|bombing/},
+      {label:"After the bombing practice they were to fly 70 miles east, turn north for 70 miles, then southwest for home.", re:/\b70\b|seventy|\b60\b|sixty|\bnorth\b|south ?west|\beast/},
+      {label:"The route they flew resembled the formation of the Bermuda Triangle.", re:/triangle|resembl|formation|unwitting/}
+    ]
+  },
+  {
+    id:"p2", part:"A", title:"Paragraph Two", stop:"Paragraph Two", n:3,
+    text:"Suddenly, a radio broadcast was intercepted from one of the crew of Flight 19 stating that he didn’t know where he was. Lt. Cox, the pilot who originally overheard the distress message, tried to make contact with the crew. After much effort, he finally connected with Lt. Taylor who informed him that his compasses were not working. Lt. Taylor stated that he thought he was in the Florida Keys, a string of islands extending from the southern tip of Florida. Cox then told Taylor to fly north. Taylor was not in the Keys but likely in the Bahamas. Following Cox’s advice would have sent him out into the ocean. When instructed by the tower to head west, Taylor stated that he couldn’t find west and that the ocean looked very strange. This was curious because Taylor could have simply used the sun to navigate his way.",
+    facts:[
+      {label:"A radio message was intercepted from a crew member of Flight 19 who said he did not know where he was.", re:/radio|broadcast|intercept|distress|(didn'?t|did not|don'?t|do not|doesn'?t|not)\b.*know where|\blost\b/},
+      {label:"Lt. Cox overheard the distress message and tried to make contact with the crew.", re:/\bcox\b|overheard|tried to (make )?contact|made contact|\bcontact/},
+      {label:"Lt. Taylor said his compasses were not working.", re:/compass/},
+      {label:"Taylor thought he was in the Florida Keys, a string of islands off the southern tip of Florida.", re:/\bkeys\b|string of islands|southern tip/},
+      {label:"Taylor was probably in the Bahamas, not the Keys.", re:/bahama/},
+      {label:"Cox told Taylor to fly north, which would have sent him out over the ocean.", re:/\bnorth\b|out (in)?to (the )?ocean|out over/},
+      {label:"When told to head west, Taylor said he could not find west and the ocean looked very strange.", re:/\bwest\b|strange|\btower\b|looked (very )?(odd|weird)/},
+      {label:"Taylor could simply have used the sun to find his way.", re:/\bsun\b|navigat|find his way/}
+    ]
+  },
+  {
+    id:"p3", part:"A", title:"Paragraph Three", stop:"Paragraph Three", n:3,
+    text:"The Navy sent out the Martin Mariner flight-boat with a crew of 13 to search for Flight 19. It too disappeared. Now there were 27 men missing. With the sun setting and radio transmission failing, the Fort Lauderdale Naval Base became increasingly concerned for the safety of the men. Fuel in the aircraft was running low and a storm was moving into the area. At 7:00 p.m., Taylor made his final radio transmission. Search and rescue crews fought through stormy weather for most of the night in a desperate attempt to find any evidence of the fate of Flight 19 and the Martin Mariner. No trace of either was ever found.",
+    facts:[
+      {label:"The Navy sent out the Martin Mariner flight-boat with a crew of 13 to search for Flight 19.", re:/martin|mariner|flight[- ]?boat|\bnavy\b|crew of (13|thirteen)|\b13\b|thirteen|sent out/},
+      {label:"The Martin Mariner also disappeared.", re:/too disappeared|also disappeared|it disappeared|disappear|vanish|never (returned|came back)/},
+      {label:"Now 27 men were missing.", re:/\b27\b|twenty[- ]?seven/},
+      {label:"The sun was setting and radio transmission was failing, so the Naval Base grew worried.", re:/setting|radio.*fail|transmission.*fail|worr|concern/},
+      {label:"Fuel was running low and a storm was moving into the area.", re:/\bfuel\b|\bstorm|running low/},
+      {label:"At 7:00 p.m. Taylor made his final radio transmission.", re:/\b7\b|seven|final|last (radio )?(transmission|message)|taylor.*transmission/},
+      {label:"Search and rescue crews fought through stormy weather for most of the night.", re:/search|rescue|stormy|most of the night|all night/},
+      {label:"No trace of Flight 19 or the Martin Mariner was ever found.", re:/no trace|never (be )?(found|seen)|ever found|not (be )?found|no (wreckage|evidence|sign)|\btrace\b/}
+    ]
+  },
+  {
+    id:"b", part:"B", title:"Using Facts to Build an Argument", stop:"Build Your Case", n:6,
+    instr:"Suppose your task was to prove that supernatural forces were the real cause of the disappearances in the Bermuda Triangle. List the most important facts that you would use to build your case.",
+    facts:[
+      {label:"No trace of the planes or the men was ever found.", re:/no trace|never (be )?(found|seen)|ever found|not (be )?found|no (wreckage|evidence|sign|debris|bod)|\btrace\b|vanish/},
+      {label:"Lt. Taylor’s compasses stopped working.", re:/compass/},
+      {label:"Taylor said the ocean looked very strange.", re:/strange|\bodd\b|weird|mysterious/},
+      {label:"Taylor could not find west, even though he could have used the sun to navigate.", re:/\bwest\b|\bsun\b|navigat/},
+      {label:"The rescue plane (the Martin Mariner) disappeared too.", re:/martin|mariner|rescue|flight[- ]?boat|too disappeared|also disappeared/},
+      {label:"In total 27 men (14 + 13) and six aircraft vanished.", re:/\b27\b|twenty[- ]?seven|\b14\b|fourteen|\b13\b|thirteen|\b(6|six) (planes|aircraft)|\b(five|5) (planes|avenger|bombers)/},
+      {label:"Radio messages showed the pilots were lost and did not know where they were.", re:/radio|\blost\b|know where|distress/},
+      {label:"Their flight route resembled the shape of the Bermuda Triangle.", re:/triangle|resembl|formation|\broute/},
+      {label:"It was only a routine training flight, yet none of the men came back.", re:/routine|training|none of the (men|planes)|never return|did not return|didn'?t return/},
+      {label:"Taylor thought he was in the Florida Keys but was probably in the Bahamas, far off course.", re:/\bkeys\b|bahama|off course|wrong/},
+      {label:"Search and rescue crews searched through the night in a storm but found nothing.", re:/search|rescue crew|all night|most of the night|stormy/},
+      {label:"Taylor’s final radio message came at 7:00 p.m., and then nothing more was heard.", re:/\b7\b|seven|final|last (radio )?(message|transmission)|never heard/}
+    ]
+  }
+];
+
+var TOTAL = 0;
+SECTIONS.forEach(function(s,i){ s.idx=i; s.qs=[]; for(var k=0;k<s.n;k++){ TOTAL++; s.qs.push(TOTAL); } });
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var $ = function(s,r){ return (r||document).querySelector(s); };
+var answers = new Array(TOTAL).fill("");
+var ov = new Array(TOTAL).fill(null);   /* teacher overrides */
+var R = [];                              /* marking results */
+var step = 0, elapsed = 0, timerId = null;
+var STORE = "flight19_test_draft";
+
+function fmt(sec){ var m=Math.floor(sec/60), s=sec%60; return (m<10?"0":"")+m+":"+(s<10?"0":"")+s; }
+function wordCount(t){ t=t.trim(); return t? t.split(/\s+/).length : 0; }
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify({a:answers, s:step, t:elapsed})); }catch(e){} }
+function clearSave(){ try{ localStorage.removeItem(STORE); }catch(e){} }
+function openDlg(d){ if(d.showModal){ d.showModal(); } else { d.setAttribute("open",""); } }
+function closeDlg(d){ if(d.close){ d.close(); } else { d.removeAttribute("open"); } }
+
+/* ============================================================
+   BUILD THE TEST
+   ============================================================ */
+function paraNum(s){ return s.id==="p1"?"One":s.id==="p2"?"Two":"Three"; }
+
+function buildStory(){
+  var h="";
+  SECTIONS.slice(0,3).forEach(function(s){ h+="<h3>"+s.title+"</h3><p>"+s.text+"</p>"; });
+  $("#storyBody").innerHTML=h;
+}
+
+function buildStepper(){
+  var st=$("#stepper");
+  var h='<div class="line"></div><span class="plane" id="plane" aria-hidden="true">✈️</span>';
+  SECTIONS.forEach(function(s,i){
+    h+='<button type="button" class="stop" data-step="'+i+'"><span class="dot">'+(i+1)+'</span><span>'+s.stop+'</span></button>';
+  });
+  st.innerHTML=h;
+  st.addEventListener("click",function(e){ var b=e.target.closest(".stop"); if(b) goStep(+b.dataset.step); });
+}
+
+function buildMap(){
+  var h="";
+  SECTIONS.forEach(function(s){
+    h+='<div class="grp"><small>'+s.stop+'</small><div class="chips">';
+    s.qs.forEach(function(q){ h+='<button type="button" class="chip" data-q="'+q+'" aria-label="Go to question '+q+'">'+q+'</button>'; });
+    h+='</div></div>';
+  });
+  $("#qmap").innerHTML=h;
+  $("#qmap").addEventListener("click",function(e){
+    var c=e.target.closest(".chip"); if(!c) return;
+    var q=+c.dataset.q, si=SECTIONS.findIndex(function(s){return s.qs.indexOf(q)>-1;});
+    goStep(si,q);
+  });
+}
+
+function buildStage(){
+  var stage=$("#stage"), h="";
+  SECTIONS.forEach(function(s,si){
+    h+='<section class="step" id="step'+si+'" '+(si?'hidden':'')+'>';
+    h+='<div class="step-head"><span class="tag">Part '+s.part+'</span><h2>'+s.title+'</h2></div>';
+    if(s.part==="A"){
+      h+='<p class="instr">List three important facts for this paragraph from the reading passage. Write each fact as a full sentence.</p>';
+      h+='<article class="passage"><h3>Paragraph '+paraNum(s)+'</h3><p>'+s.text+'</p></article>';
+    } else {
+      h+='<p class="instr">'+s.instr+'</p>';
+      h+='<div class="casebox"><span>Need to check the facts? Open the story and read it again before you write.</span><button type="button" class="btn small" data-open-story>📖 Read the story</button></div>';
+    }
+    s.qs.forEach(function(q,k){
+      var lab = s.part==="A" ? "Important fact "+(k+1)+" from "+s.title : "Fact "+(k+1)+" for your case";
+      h+='<div class="q" id="qb'+q+'"><label for="q'+q+'"><span class="qn">'+q+'</span>'+lab+'</label>'+
+         '<textarea id="q'+q+'" data-q="'+q+'" rows="3" placeholder="Write your answer here…"></textarea>'+
+         '<span class="wc" id="wc'+q+'">0 words</span></div>';
+    });
+    h+='<div class="footnav">'+
+       '<button type="button" class="btn" data-prev>‹ Back</button>'+
+       (si<SECTIONS.length-1
+          ? '<button type="button" class="btn next" data-next>Next: '+SECTIONS[si+1].stop+' ›</button>'
+          : '<button type="button" class="btn go" data-submit>Submit test ✔</button>')+
+       '</div></section>';
+  });
+  stage.innerHTML=h;
+
+  stage.addEventListener("input",function(e){
+    var t=e.target; if(t.tagName!=="TEXTAREA") return;
+    var q=+t.dataset.q; answers[q-1]=t.value;
+    $("#wc"+q).textContent=wordCount(t.value)+(wordCount(t.value)===1?" word":" words");
+    refreshProgress(); save();
+  });
+  stage.addEventListener("click",function(e){
+    if(e.target.closest("[data-prev]")) goStep(step-1);
+    else if(e.target.closest("[data-next]")) goStep(step+1);
+    else if(e.target.closest("[data-submit]")) askSubmit();
+    else if(e.target.closest("[data-open-story]")) openDlg($("#storyDlg"));
+  });
+}
+
+function goStep(i,focusQ){
+  if(i<0||i>=SECTIONS.length) return;
+  step=i;
+  SECTIONS.forEach(function(s,k){ $("#step"+k).hidden = (k!==i); });
+  refreshProgress();
+  if(focusQ){
+    var ta=$("#q"+focusQ); if(ta){ ta.focus({preventScroll:true}); $("#qb"+focusQ).scrollIntoView({behavior:"smooth",block:"center"}); }
+  } else {
+    var top=$("#stepper").getBoundingClientRect().top+window.scrollY-6;
+    window.scrollTo({top:Math.max(0,top),behavior:"smooth"});
+  }
+  save();
+}
+
+function refreshProgress(){
+  var done=answers.filter(function(a){return a.trim();}).length;
+  $("#bar").style.width=(done/TOTAL*100)+"%";
+  $("#progText").textContent=done+" of "+TOTAL+" answered";
+  document.querySelectorAll(".chip").forEach(function(c){
+    var q=+c.dataset.q;
+    c.classList.toggle("done", !!answers[q-1].trim());
+    c.classList.toggle("cur", SECTIONS[step].qs.indexOf(q)>-1);
+  });
+  document.querySelectorAll(".stop").forEach(function(b,i){
+    var s=SECTIONS[i], all=s.qs.every(function(q){return answers[q-1].trim();});
+    b.classList.toggle("cur",i===step);
+    b.classList.toggle("done",all);
+    b.setAttribute("aria-current", i===step?"step":"false");
+    b.querySelector(".dot").textContent = all ? "✓" : (i+1);
+  });
+  $("#plane").style.left="calc(16px + (100% - 32px) * "+((step*2+1)/(SECTIONS.length*2))+")";
+}
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+function startTimer(){ stopTimer(); timerId=setInterval(function(){ elapsed++; $("#clock").textContent=fmt(elapsed); if(elapsed%10===0) save(); },1000); }
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+/* ============================================================
+   MARKING
+   ============================================================ */
+function norm(t){ return t.toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").trim(); }
+
+function markSection(sec){
+  var txts=sec.qs.map(function(q){ return norm(answers[q-1]); });
+  var cand=txts.map(function(t){
+    if(wordCount(t)<3) return [];
+    var out=[]; sec.facts.forEach(function(f,i){ if(f.re.test(t)) out.push(i); });
+    return out;
+  });
+  var owner=new Array(sec.facts.length).fill(-1);
+  function assign(a,seen){
+    for(var j=0;j<cand[a].length;j++){
+      var f=cand[a][j]; if(seen[f]) continue; seen[f]=true;
+      if(owner[f]<0 || assign(owner[f],seen)){ owner[f]=a; return true; }
+    }
+    return false;
+  }
+  cand.forEach(function(_,a){ assign(a,{}); });
+  return sec.qs.map(function(q,a){
+    var t=txts[a], f=owner.indexOf(a);
+    if(!t) return {q:q,sec:sec.idx,status:"blank",auto:false,note:"No answer was written."};
+    if(wordCount(t)<3) return {q:q,sec:sec.idx,status:"short",auto:false,note:"Too short. Write the fact as a full sentence."};
+    if(f>=0) return {q:q,sec:sec.idx,status:"ok",auto:true,fact:sec.facts[f].label,note:""};
+    if(cand[a].length) return {q:q,sec:sec.idx,status:"dup",auto:false,note:"This fact was already used in another answer."};
+    return {q:q,sec:sec.idx,status:"no",auto:false,note:"This did not match a fact from the story. Your teacher can check it and change the mark."};
+  });
+}
+function eff(r){ return ov[r.q-1]===null ? r.auto : ov[r.q-1]; }
+
+/* ============================================================
+   SUBMIT + RESULTS
+   ============================================================ */
+function askSubmit(){
+  var blanks=[]; answers.forEach(function(a,i){ if(!a.trim()) blanks.push(i+1); });
+  var msg;
+  if(blanks.length===TOTAL) msg="You have not written any answers yet. Do you really want to submit?";
+  else if(blanks.length) msg="You left "+blanks.length+(blanks.length===1?" question":" questions")+" blank (question"+(blanks.length>1?"s ":" ")+blanks.join(", ")+"). Submit anyway?";
+  else msg="You have answered every question. Ready to see your score sheet?";
+  $("#confMsg").textContent=msg;
+  openDlg($("#confDlg"));
+}
+
+function showResults(){
+  stopTimer();
+  R=[]; SECTIONS.forEach(function(s){ markSection(s).forEach(function(r){ R.push(r); }); });
+  ov=new Array(TOTAL).fill(null);
+  buildResults();
+  $("#app").hidden=true; $("#results").hidden=false;
+  $("#submitTop").hidden=true; $("#readBtn").hidden=true;
+  window.scrollTo(0,0);
+  refreshScores(true);
+}
+
+function el(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; }
+
+function buildResults(){
+  var host=$("#results"); host.innerHTML="";
+  var hero=el("div","panel hero");
+  hero.innerHTML=
+    '<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Score ring"><circle class="rb" cx="60" cy="60" r="52"/><circle class="rf" id="rf" cx="60" cy="60" r="52" transform="rotate(-90 60 60)"/>'+
+    '<text id="rpct" x="60" y="66" text-anchor="middle" font-size="30" font-weight="700">0%</text></svg>'+
+    '<div><h2 id="rhead"></h2><div class="stars" id="rstars" aria-hidden="true"></div><p id="rmsg"></p></div>';
+  host.appendChild(hero);
+
+  var stats=el("div","stats");
+  stats.innerHTML=
+    '<div class="stat"><b id="sTotal">0/'+TOTAL+'</b><span>Total score</span></div>'+
+    '<div class="stat"><b id="sAns">0/'+TOTAL+'</b><span>Questions answered</span></div>'+
+    '<div class="stat"><b id="sGrade">–</b><span>Grade</span></div>'+
+    '<div class="stat"><b>'+fmt(elapsed)+'</b><span>Time taken</span></div>';
+  host.appendChild(stats);
+
+  var bd=el("div","panel box"); bd.appendChild(el("h3",null,"Score breakdown"));
+  SECTIONS.forEach(function(s,i){
+    var row=el("div","row");
+    row.innerHTML='<span>'+s.stop+'</span><div class="bar"><i id="bb'+i+'"></i></div><span id="bt'+i+'"></span>';
+    bd.appendChild(row);
+  });
+  host.appendChild(bd);
+
+  var rev=el("div","panel box");
+  rev.appendChild(el("h3",null,"Question-by-question review"));
+  var note=el("p","why","Each correct fact earns 1 mark. Answers are checked automatically against the facts in the story. If an answer is correct but did not get a mark, use “Change mark” (a teacher can do this too).");
+  rev.appendChild(note);
+  SECTIONS.forEach(function(s,i){
+    var head=el("div","sec-h"); head.appendChild(el("h3",null,s.title));
+    var sc=el("span","sc"); sc.id="ss"+i; head.appendChild(sc); rev.appendChild(head);
+
+    var det=el("details"); det.appendChild(el("summary",null, s.part==="A"?"Facts that earn a mark in this paragraph":"Strong facts for the supernatural argument"));
+    var ul=el("ul"); s.facts.forEach(function(f){ ul.appendChild(el("li",null,f.label)); }); det.appendChild(ul);
+    rev.appendChild(det);
+
+    var ol=el("ol","rvs");
+    s.qs.forEach(function(q,k){
+      var r=R[q-1];
+      var li=el("li","rv"); li.id="rv"+q;
+      var top=el("div","rv-top");
+      top.appendChild(el("span","qn",q));
+      top.appendChild(el("span",null, s.part==="A" ? "Fact "+(k+1)+" – "+s.title : "Fact "+(k+1)+" for your case"));
+      var b=el("span","badge"); b.id="bd"+q; top.appendChild(b);
+      li.appendChild(top);
+      var yr=el("div","your"+(answers[q-1].trim()?"":" empty"), answers[q-1].trim()||"(You did not write an answer)");
+      li.appendChild(yr);
+      var why=el("p","why"); why.id="wy"+q; li.appendChild(why);
+      var tg=el("button","btn small","Change mark"); tg.type="button"; tg.dataset.q=q; li.appendChild(tg);
+      ol.appendChild(li);
+    });
+    rev.appendChild(ol);
+  });
+  host.appendChild(rev);
+
+  var act=el("div","res-actions");
+  act.innerHTML='<button class="btn next" type="button" id="btnEdit">✏️ Edit my answers</button><button class="btn" type="button" id="btnPrint">🖨 Print score sheet</button><button class="btn warn" type="button" id="btnRetry">🔄 Try again</button>';
+  host.appendChild(act);
+
+  host.addEventListener("click",function(e){
+    var t=e.target.closest("button"); if(!t) return;
+    if(t.dataset.q){
+      var q=+t.dataset.q, r=R[q-1], cur=eff(r);
+      ov[q-1] = (ov[q-1]===null) ? !r.auto : null;   /* flip, second click returns to automatic */
+      refreshScores(false);
+    } else if(t.id==="btnPrint") window.print();
+    else if(t.id==="btnEdit") backToTest();
+    else if(t.id==="btnRetry") retry();
+  });
+}
+
+function refreshScores(animate){
+  var total=0, secScore=SECTIONS.map(function(){return 0;});
+  R.forEach(function(r){ if(eff(r)){ total++; secScore[r.sec]++; } });
+  var pct=Math.round(total/TOTAL*100);
+
+  $("#sTotal").textContent=total+"/"+TOTAL;
+  $("#sAns").textContent=answers.filter(function(a){return a.trim();}).length+"/"+TOTAL;
+  var g=pct>=80?"A":pct>=65?"B":pct>=50?"C":pct>=40?"D":"E";
+  $("#sGrade").textContent=g;
+  $("#rpct").textContent=pct+"%";
+  var C=326.7, rf=$("#rf");
+  rf.style.stroke = pct>=65?"var(--mint)":pct>=40?"var(--sun)":"var(--coral)";
+  rf.style.strokeDashoffset = C*(1-pct/100);
+
+  var head,msg;
+  if(pct>=90){head="Outstanding! You are a Flight Commander!"; msg="You found almost every key fact in the story. Brilliant reading.";}
+  else if(pct>=75){head="Great flying, Captain!"; msg="You spotted most of the important facts. Check the ones you missed below.";}
+  else if(pct>=60){head="Good job! You are earning your wings."; msg="You have a good grip on the story. Read it again to find the facts you missed.";}
+  else if(pct>=40){head="Nice try! Keep climbing."; msg="Re-read the story slowly and look for names, numbers, places and times.";}
+  else {head="Keep practising, young pilot!"; msg="Read the story again and list the facts you find in each paragraph. You can do it!";}
+  $("#rhead").textContent=head; $("#rmsg").textContent=msg;
+  var stars=Math.round(pct/20); $("#rstars").textContent="★★★★★".slice(0,stars)+"☆☆☆☆☆".slice(0,5-stars);
+
+  SECTIONS.forEach(function(s,i){
+    $("#bb"+i).style.width=(secScore[i]/s.n*100)+"%";
+    $("#bb"+i).style.background = secScore[i]/s.n>=.67?"var(--mint)":secScore[i]/s.n>=.34?"var(--sun)":"var(--coral)";
+    $("#bt"+i).textContent=secScore[i]+"/"+s.n;
+    $("#ss"+i).textContent=secScore[i]+" / "+s.n;
+  });
+
+  R.forEach(function(r){
+    var li=$("#rv"+r.q), on=eff(r), changed=ov[r.q-1]!==null;
+    li.className="rv "+(on?"ok":(r.status==="blank"?"blank":"no"));
+    $("#bd"+r.q).textContent = on ? "✔ 1 mark" : (r.status==="blank" && !changed ? "Blank" : "0 marks");
+    var why;
+    if(changed) why = on ? "Mark given by your teacher." : "Mark removed by your teacher.";
+    else if(r.auto) why = "Matches this fact: "+r.fact;
+    else why = r.note;
+    $("#wy"+r.q).textContent=why;
+    li.querySelector("button").textContent = changed ? "Undo change" : (on ? "Remove mark" : "Give mark");
+  });
+}
+
+function backToTest(){
+  $("#results").hidden=true; $("#app").hidden=false;
+  $("#submitTop").hidden=false; $("#readBtn").hidden=false;
+  goStep(0); startTimer(); window.scrollTo(0,0);
+}
+function retry(){
+  if(!confirm("Start again? All your answers will be cleared.")) return;
+  answers.fill(""); ov.fill(null); elapsed=0; clearSave();
+  document.querySelectorAll("#stage textarea").forEach(function(t){ t.value=""; });
+  document.querySelectorAll(".wc").forEach(function(w){ w.textContent="0 words"; });
+  $("#clock").textContent="00:00";
+  backToTest();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+buildStory(); buildStepper(); buildMap(); buildStage();
+
+try{
+  var d=JSON.parse(localStorage.getItem(STORE)||"null");
+  if(d && Array.isArray(d.a) && d.a.length===TOTAL){
+    answers=d.a; elapsed=d.t||0; step=Math.min(d.s||0,SECTIONS.length-1);
+    answers.forEach(function(a,i){
+      var ta=$("#q"+(i+1)); ta.value=a; var w=wordCount(a);
+      $("#wc"+(i+1)).textContent=w+(w===1?" word":" words");
+    });
+    $("#clock").textContent=fmt(elapsed);
+    SECTIONS.forEach(function(s,k){ $("#step"+k).hidden=(k!==step); });
+  }
+}catch(e){}
+
+refreshProgress(); startTimer();
+
+$("#readBtn").addEventListener("click",function(){ openDlg($("#storyDlg")); });
+$("#readBtn2").addEventListener("click",function(){ openDlg($("#storyDlg")); });
+$("#storyClose").addEventListener("click",function(){ closeDlg($("#storyDlg")); });
+$("#submitTop").addEventListener("click",askSubmit);
+$("#confNo").addEventListener("click",function(){ closeDlg($("#confDlg")); });
+$("#confYes").addEventListener("click",function(){ closeDlg($("#confDlg")); showResults(); });
+document.querySelectorAll("dialog").forEach(function(dg){
+  dg.addEventListener("click",function(e){ if(e.target===dg) closeDlg(dg); });
+});
+})();
+</script>
+</body>
+</html>
